@@ -1,4 +1,4 @@
-let COLS = 26, ROWS = 26
+let COLS = 30, ROWS = 40
 let EMPTY = 0, SNAKE = 1, FRUIT = 2
 let LEFT = 0, UP = 1, RIGHT = 2, DOWN = 3
 let KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40
@@ -41,7 +41,7 @@ var snake = {
     },
 
     remove: function() {
-        this._queue.pop()
+        return this._queue.pop()
     },
 }
 
@@ -56,7 +56,7 @@ function setFood() {
     grid.set(FRUIT, randpos.x, randpos.y)
 }
 
-let canvas, ctx, keystate = {}, frames
+let canvas, ctx, keystate = {}, frames, score = 0, nightMode = false
 
 function main() {
     canvas = document.createElement("canvas")
@@ -97,8 +97,6 @@ function loop() {
 function update() {
     frames++
 
-    console.log(keystate)
-
     if (keystate[KEY_LEFT]) snake.direction = LEFT
     if (keystate[KEY_UP]) snake.direction = UP
     if (keystate[KEY_RIGHT]) snake.direction = RIGHT
@@ -123,14 +121,23 @@ function update() {
                 break;
         }
 
-        if (0 > nx || nx > grid.width - 1 || 0 > ny || ny > grid.height - 1) {
+        if (0 > nx || nx > grid.width - 1 || 0 > ny || ny > grid.height - 1 || grid.get(nx, ny) === SNAKE) {
             return init()
         }
 
-        let tail = snake.remove()
-        grid.set(EMPTY, snake.last.x, snake.last.y)
-        grid.set(SNAKE, nx, ny)
-
+        let tail;
+        if (grid.get(nx, ny) === FRUIT) {
+            tail = {x: nx, y: ny}
+            score++;
+            nightMode = !nightMode
+            setFood()
+        } else {
+            tail = snake.remove()
+            grid.set(EMPTY, tail.x, tail.y)
+            tail.x = nx
+            tail.y = ny
+        }
+        grid.set(SNAKE, tail.x, tail.y)
         snake.insert(nx, ny)
     }
 }
@@ -143,7 +150,11 @@ function draw() {
         for (var y = 0; y < grid.height; y++) {
             switch (grid.get(x, y)) {
                 case EMPTY:
-                    ctx.fillStyle = "#fff"
+                    if (nightMode) {
+                        ctx.fillStyle = "#000"
+                    } else {
+                        ctx.fillStyle = "#fff"
+                    }
                     break;
                 case SNAKE:
                     ctx.fillStyle = "#0ff"
@@ -155,6 +166,12 @@ function draw() {
             ctx.fillRect(x * tw, y * th, tw, th)
         }
     }
+    if (nightMode) {
+        ctx.fillStyle = "#fff"
+    } else {
+        ctx.fillStyle = "#000"
+    }
+    ctx.fillText("SCORE: " + score, 10, canvas.height - 10);
 }
 
 main();
