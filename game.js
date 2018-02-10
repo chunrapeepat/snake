@@ -56,7 +56,7 @@ function setFood() {
     grid.set(FRUIT, randpos.x, randpos.y)
 }
 
-let canvas, ctx, keystate, frames
+let canvas, ctx, keystate = {}, frames
 
 function main() {
     canvas = document.createElement("canvas")
@@ -66,7 +66,13 @@ function main() {
     document.body.appendChild(canvas)
 
     frames = 0
-    keystate = {}
+
+    document.addEventListener("keydown", function(e) {
+        for (var i = 0; i < Object.keys(keystate).length; i++) {
+            keystate[Object.keys(keystate)[i]] = false
+        }
+        keystate[e.keyCode] = true
+    })
 
     init()
     loop()
@@ -90,6 +96,13 @@ function loop() {
 
 function update() {
     frames++
+
+    console.log(keystate)
+
+    if (keystate[KEY_LEFT]) snake.direction = LEFT
+    if (keystate[KEY_UP]) snake.direction = UP
+    if (keystate[KEY_RIGHT]) snake.direction = RIGHT
+    if (keystate[KEY_DOWN]) snake.direction = DOWN
 
     if (frames % 5 === 0) {
         let nx = snake.last.x
