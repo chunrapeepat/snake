@@ -102,7 +102,7 @@ function update() {
     if (keystate[KEY_RIGHT]) snake.direction = RIGHT
     if (keystate[KEY_DOWN]) snake.direction = DOWN
 
-    if (frames % 5 === 0) {
+    if (frames % 2 === 0) {
         let nx = snake.last.x
         let ny = snake.last.y
 
